@@ -128,10 +128,12 @@ The service that we’re going to build is a simple bank. It will provide APIs f
 ---
 ## Progress
 ### Setup local environment
+
 ### Design [dbdiagram](./db/dbdiagram) with https://dbdiagram.io/
 - Foreign Key: `ref: > A.id`, 
 - Timestamp Type: `timestamptz`
 - Generate sql [000001_init_schema.up.sql](./db/migtation/000001_init_schema.up.sql)
+
 ### Setup Postgres with Docker and DB Migration
 ```
 make network
@@ -143,3 +145,8 @@ make dockerexecpostgres
 ```
 - now we should be able to see tables created by migration script
 - we can also connect DB with [TablePlus](https://tableplus.com/)
+
+### Generate CRUD Golang code from SQL
+- Write CRUD SQL query in [db/query](./db/query)
+- generate golang code with `make sqlc`
+- init go module `go mod init github.com/hhow09/simple_bank`
