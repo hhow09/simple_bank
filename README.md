@@ -196,3 +196,32 @@ make dockerexecpostgres
     - change: `FOR UPDATE` -> `FOR NO KEY UPDATE`
 - Refactor 
     - `getAccountForUpdate`+`UpdateAccount` = `AddAccountBalance`
+
+
+### 8. Avoid DeadLock
+- We will encounter deadlock when 2 transactions: `acc1` -> `acc2` and `acc2` -> `acc1` are running concurrently.
+```sql
+-- gorutine 1: transfer from id=1 to id=2
+BEGIN;
+UPDATE accounts SET balance = balance - 10 WHERE id = 1 RETURNING *;
+UPDATE accounts SET balance = balance + 10 WHERE id = 2 RETURNING *; 
+COMMIT; 
+
+-- gorutine 2: transfer from id=2 to id=1
+BEGIN;
+UPDATE accounts SET balance = balance - 10 WHERE id = 2 RETURNING *; 
+UPDATE accounts SET balance = balance + 10 WHERE id = 1 RETURNING *;
+COMMIT; 
+```
+
+- However if we switch the order so that **transactions always acquire locks in a consistent order**
+```golang
+if arg.FromAccountID < arg.ToAccountID {
+	result.FromAccount, result.ToAccount, err = addMoney(ctx, q, arg.FromAccountID, -arg.Amount, arg.ToAccountID, arg.Amount)
+} else {
+	result.ToAccount, result.FromAccount, err = addMoney(ctx, q, arg.ToAccountID, arg.Amount, arg.FromAccountID, -arg.Amount)
+}
+```
+
+the deadlock will not happen.
+- we can test with `TestTransferTxDeadlock`
