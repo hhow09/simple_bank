@@ -150,3 +150,13 @@ make dockerexecpostgres
 - Write CRUD SQL query in [db/query](./db/query)
 - generate golang code with `make sqlc`
 - init go module `go mod init github.com/hhow09/simple_bank`
+
+### Write Golang unit tests for database CRUD with random data
+- Write tests
+    - [main_test.go](./db/sqlc/main_test.go): to make db connection
+    - use `testQueries` to access functions in `[query].sql.go`
+    - write following tests
+    - [account_test.go](./db/sqlc/account_test.go)
+    - [entry_test.go](./db/sqlc/entry_test.go)
+    - [transfer_test.go](./db/sqlc/transfer_test.go)
+- `make test`
