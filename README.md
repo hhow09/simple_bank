@@ -170,8 +170,29 @@ make dockerexecpostgres
         1. create transfer record
 	    2. create Entry of from_account
 	    3. create Entry of to_account
-        4. TODO update from_account
+        4. update accounts' balance
 - Write [store_test.go](./db/sqlc/store_test.go)
     - create 5 goroutine to test transaction
     - get the err and result with go [channel](https://tour.golang.org/concurrency/2)
-    
+### 7. Handle Transaction Lock
+- Now transfer transaction will not pass the test since
+    - `GetAccount` SQL is `SELECT` and does not block each other
+    - it will result in all concurrent `GetAccount` just return initial value
+- Create a SQL that `SELECT FOR UPDATE`
+    ```
+    -- name: GetAccountForUpdate :one
+    SELECT * FROM accounts
+    WHERE id = $1 LIMIT 1;
+    FOR UPDATE
+    ```
+- Now we will encounter `pq: deadlock detected`
+    - simulate the QUERY BEING EXECUTED TO IDENTIFY LOCK
+    - [PSQL - Lock Monitoring](https://wiki.postgresql.org/wiki/Lock_Monitoring)
+    - deadlock are created between 2 transactions of `INSERT INTO transfers` and `SELECT * FROM accounts FOR UPDATE` 
+- Handle Deadlock
+    - since `transfers` Table has foreign key `from_account_id` and `to_account_id` referencing `accounts` Table
+    - `INSERT INTO transfers` will acquire a `ExclusiveLock` on `accounts` Table to ensure that `ID` of accounts are not consistent.
+    - However we are only update the `Balance` of account. The lock is unneeded.
+    - change: `FOR UPDATE` -> `FOR NO KEY UPDATE`
+- Refactor 
+    - `getAccountForUpdate`+`UpdateAccount` = `AddAccountBalance`

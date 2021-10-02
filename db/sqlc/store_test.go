@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -12,6 +13,7 @@ func TestTransferTx(t *testing.T) {
 
 	acc1 := createRandomAccount(t)
 	acc2 := createRandomAccount(t)
+	fmt.Println(">> before:", acc1.Balance, acc2.Balance)
 
 	//run n concurrent transfer transaction
 	n, amount := 5, int64(10)
@@ -33,6 +35,7 @@ func TestTransferTx(t *testing.T) {
 	}
 
 	//check results
+	existed := make(map[int]bool)
 	for i := 0; i < n; i++ {
 		err := <-errs
 		require.NoError(t, err)
@@ -72,6 +75,29 @@ func TestTransferTx(t *testing.T) {
 		_, err = store.GetEntry(context.Background(), toEntry.ID)
 		require.NoError(t, err)
 
-		//TODO: check accounts balance
+		//check accounts
+		fromAccount := result.FromAccount
+		require.NotEmpty(t, fromAccount)
+		require.Equal(t, fromAccount.ID, acc1.ID)
+
+		toAccount := result.ToAccount
+		require.NotEmpty(t, toAccount)
+		require.Equal(t, toAccount.ID, acc2.ID)
+
+		//check accounts balance
+		fmt.Println(">> tx:", fromAccount.Balance, toAccount.Balance)
+		diff1 := acc1.Balance - fromAccount.Balance
+		diff2 := toAccount.Balance - acc2.Balance
+		require.Equal(t, diff1, diff2)
+		require.True(t, diff1 > 0)
+		require.True(t, diff1%amount == 0) // diff should be the multiply of amount
+
+		k := int(diff1 / amount)
+		require.True(t, k >= 1 && k <= n)
+
+		require.NotContains(t, existed, k)
+		existed[k] = true
 	}
+
+	// check the final updated balance
 }
