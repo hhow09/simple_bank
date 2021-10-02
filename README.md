@@ -127,14 +127,14 @@ The service that we’re going to build is a simple bank. It will provide APIs f
 
 ---
 ## Progress
-### Setup local environment
+### 1. Setup local environment
 
-### Design [dbdiagram](./db/dbdiagram) with https://dbdiagram.io/
+### 2. Design [dbdiagram](./db/dbdiagram) with https://dbdiagram.io/
 - Foreign Key: `ref: > A.id`, 
 - Timestamp Type: `timestamptz`
 - Generate sql [000001_init_schema.up.sql](./db/migtation/000001_init_schema.up.sql)
 
-### Setup Postgres with Docker and DB Migration
+### 3. Setup Postgres with Docker and DB Migration
 ```
 make network
 make postgres
@@ -146,12 +146,12 @@ make dockerexecpostgres
 - now we should be able to see tables created by migration script
 - we can also connect DB with [TablePlus](https://tableplus.com/)
 
-### Generate CRUD Golang code from SQL
+### 4. Generate CRUD Golang code from SQL
 - Write CRUD SQL query in [db/query](./db/query)
 - generate golang code with `make sqlc`
 - init go module `go mod init github.com/hhow09/simple_bank`
 
-### Write Golang unit tests for database CRUD with random data
+### 5. Write Golang unit tests for database CRUD with random data
 - Write tests
     - [main_test.go](./db/sqlc/main_test.go): to make db connection
     - use `testQueries` to access functions in `[query].sql.go`
@@ -160,3 +160,18 @@ make dockerexecpostgres
     - [entry_test.go](./db/sqlc/entry_test.go)
     - [transfer_test.go](./db/sqlc/transfer_test.go)
 - `make test`
+- go [context](https://pkg.go.dev/context): carries deadlines, cancellation signals, and other request-scoped values across API boundaries and between processes.
+
+### 6. implement database transaction in Golang
+- Create [store.go](./db/sqlc/store.go)
+    - `Store`: provides all funcs to execute queries and transactions
+    - `execTx`: define a private transaction function: begin -> Commit or Rollback
+    - `TransferTx`: define a public transfer transaction function
+        1. create transfer record
+	    2. create Entry of from_account
+	    3. create Entry of to_account
+        4. TODO update from_account
+- Write [store_test.go](./db/sqlc/store_test.go)
+    - create 5 goroutine to test transaction
+    - get the err and result with go [channel](https://tour.golang.org/concurrency/2)
+    
