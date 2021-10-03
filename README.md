@@ -278,3 +278,12 @@ Steps:
 #### Reference
 - [MySQL - 15.7.2.1 Transaction Isolation Levels](https://dev.mysql.com/doc/refman/8.0/en/innodb-transaction-isolation-levels.html)
 - [PostgreSQL - 13.2. Transaction Isolation](https://www.postgresql.org/docs/current/transaction-iso.html)
+
+### 10. Github Action For unit test
+- [.github/workflows/test.yml](./.github/workflows/test.yml)
+
+### 11. Implement RESTful HTTP API in Go using Gin
+- install [gin-gonic/gin](https://github.com/gin-gonic/gin) for http router and implement REST API
+- in [api](./api)
+    - define routing and handlers
+    - use [Model binding and validation](https://github.com/gin-gonic/gin#model-binding-and-validation) to do param validation.
