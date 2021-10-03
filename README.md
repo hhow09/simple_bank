@@ -225,3 +225,56 @@ if arg.FromAccountID < arg.ToAccountID {
 
 the deadlock will not happen.
 - we can test with `TestTransferTxDeadlock`
+
+### 9. Isolation levels & read phenomena in MySQL & PostgreSQL 
+
+#### MySQL
+```sql
+SELECT @@transaction_isolation --isolation level of current session
+SELECT @@global.transaction_isolation --isolation level of global session
+```
+
+#### PostgreSQL
+- only has 3 isolation level since `read uncommitted` is actually `read committed`
+- transaction isolation can only be set in one transaction.
+```sql
+show transaction isolation level;
+```
+#### repeatable read is different in MySQL and PostgreSQL
+- in isolation level `repeatable read`
+
+```
+Table accounts
+ id  | owner  | balance | currency |          
+-----+--------+---------+----------+
+   1 | tom    |     100 | USD      |
+   2 | mary   |     100 | USD      |
+```
+
+```
+Steps:
+1. process A, select * from accounts: tom's balance = 100
+2. process B, select * from accounts where id=1: tom's balance = 100
+3. process A, update accounts set balance = balance - 10 where id=1 returning *; tom's balance = 90
+4. process B, select * from accounts where balance >=100: tom will appear since tom's balance = 100, (repeatable read)
+5. process A, commit; 
+6. process B, update accounts set balance = balance - 10 where id=1 returning *; 
+7. process B, commit;
+```
+
+- running those steps in MySQL:
+    - after step 7 we will get tom's balance: 80
+    - however it does not make sense since we expect tom's balance to be 100
+- running those steps in MySQL:
+    - after step 6 we will get `ERROR:  could not serialize access due to concurrent update`
+
+#### MySQL v.s. PostgreSQL
+|                         | MySQL         | PostgreSQL           |
+|-------------------------|---------------|----------------------|
+| isolation levels        | 4             | 3                    |
+| mechanism               | lock          | dependency detection |
+| default isolation level | read commited | repeatable read      |
+
+#### Reference
+- [MySQL - 15.7.2.1 Transaction Isolation Levels](https://dev.mysql.com/doc/refman/8.0/en/innodb-transaction-isolation-levels.html)
+- [PostgreSQL - 13.2. Transaction Isolation](https://www.postgresql.org/docs/current/transaction-iso.html)
