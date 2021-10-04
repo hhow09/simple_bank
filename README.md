@@ -287,3 +287,7 @@ Steps:
 - in [api](./api)
     - define routing and handlers
     - use [Model binding and validation](https://github.com/gin-gonic/gin#model-binding-and-validation) to do param validation.
+
+### 12. Load config from file & environment variables in Golang with Viper
+- https://github.com/spf13/viper
+
