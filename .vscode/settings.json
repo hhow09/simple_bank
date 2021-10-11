@@ -9,5 +9,7 @@
         "editor.codeActionsOnSave": {
             "source.organizeImports": true
         },
-    }
+    },
+    "go.coverOnSave": true,
+    "go.coverOnSingleTest": true
 }

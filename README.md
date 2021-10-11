@@ -291,3 +291,25 @@ Steps:
 ### 12. Load config from file & environment variables in Golang with Viper
 - https://github.com/spf13/viper
 
+
+### 13. Mock DB for testing HTTP API in Go and achieve 100% coverage
+- We need a mockDB
+#### Currently Server is using `store` of real db
+```golang
+type Server struct {
+	store  *db.Store
+    ...
+}
+```
+- we can generate `Querier` interface by setting`emit_interface: true`
+    - `var _ Querier = (*Queries)(nil)` means `Queries` struct must implement `Querier` interface
+- we can make a higher level abstraction `Store` interface
+    - we can embed `Querier` interface in to `Store` to ensure it has all 
+    - `SQLStore` must implements `Store`
+- `make mock`
+    - package name: `mockdb`
+    - destination `db/mock/store.go` 
+    - Interface to mock: `Store`
+- write tests in [account_test.go](./api/account_test.go) using `store *mockdb.MockStore`
+    - use [httptest.NewRecorder](https://pkg.go.dev/net/http/httptest#NewRecorder) and `router.ServeHTTP` to write test and record them.
+    - achieve 100%
