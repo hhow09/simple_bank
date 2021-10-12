@@ -319,3 +319,15 @@ type Server struct {
     - instead of hard code the available currency in param binding, register a custom currency validator to gin
     - use `ShouldBindJSON` in `*gin.Context` to parse JSON
     - validate requested transfer currency should match two accounts
+
+### 15. Add users table with unique & foreign key constraints in PostgreSQL
+- now we still missing user authentication and authorization, we need user Tables.
+- modify [dbdiagram](./db/dbdiagram) to add user Table, some db constraints:
+    - email should be `unique`
+    - a user can have multiple account: `accounts.owner` should be the foreign key of username.
+    - an owner cannot own two account with same currency: 
+        - `(owner, currency) [unique]`
+        - `ALTER TABLE "accounts" ADD CONSTRAINT "owner_currency_key" UNIQUE ("owner", "currency");`
+- generate postgreSQL script from https://dbdiagram.io/
+- `migrate create -ext sql -dir db/migration -seq add_users` to add a new migration script, [000002_add_users.up.sql](./db/migration/000002_add_users.up.sql)
+- `make migratedown`
