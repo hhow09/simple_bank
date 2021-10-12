@@ -313,3 +313,9 @@ type Server struct {
 - write tests in [account_test.go](./api/account_test.go) using `store *mockdb.MockStore`
     - use [httptest.NewRecorder](https://pkg.go.dev/net/http/httptest#NewRecorder) and `router.ServeHTTP` to write test and record them.
     - achieve 100%
+
+### 14.  Implement transfer money API with a custom params validator
+- implement `POST /transfers` API
+    - instead of hard code the available currency in param binding, register a custom currency validator to gin
+    - use `ShouldBindJSON` in `*gin.Context` to parse JSON
+    - validate requested transfer currency should match two accounts

@@ -37,7 +37,7 @@ server:
 mock:
 	mockgen -package mockdb -destination db/mock/store.go github.com/hhow09/simple_bank/db/sqlc Store
 
-.PHONY: network postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 sqlc test server mock
-
 dockerexecpostgres:
 	docker exec -it postgres12 psql
+
+.PHONY: network postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 sqlc test server mock dockerexecpostgres
