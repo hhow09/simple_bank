@@ -331,3 +331,11 @@ type Server struct {
 - generate postgreSQL script from https://dbdiagram.io/
 - `migrate create -ext sql -dir db/migration -seq add_users` to add a new migration script, [000002_add_users.up.sql](./db/migration/000002_add_users.up.sql)
 - `make migratedown`
+
+### 16. How to handle DB errors in Golang correctly
+- `make sqlc` to generate updated model and `*.sql.go` 
+- write unit test [user_test.go](./db/sqlc/user_test.go)
+- handle db constraints violation in `CreateAccount`
+    - `foreign_key_violation`: an account should only be created **when owner is an existing user**
+    - `unique_violation`: an `owner-currency` index should be unique
+    - both of them should return `http.StatusForbidden` (403)
