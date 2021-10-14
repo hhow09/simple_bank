@@ -339,3 +339,10 @@ type Server struct {
     - `foreign_key_violation`: an account should only be created **when owner is an existing user**
     - `unique_violation`: an `owner-currency` index should be unique
     - both of them should return `http.StatusForbidden` (403)
+
+### 17. How to securely store passwords? Hash password in Go with Bcrypt!
+- use [bcrypt](https://pkg.go.dev/golang.org/x/crypto/bcrypt) to do password hashing and checking in [password.go](./util/password.go)
+    - bcrypt will generate hashed password with `cost` `random salt` 
+    - if we hash same password twice, output should be different
+- implement `createUser` handler in [user.go](./api/user.go).
+    - check [go-playground/validator - Baked-in Validations](https://github.com/go-playground/validator#baked-in-validations).
