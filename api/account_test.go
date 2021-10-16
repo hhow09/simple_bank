@@ -110,14 +110,12 @@ func TestCreateAccountAPI(t *testing.T) {
 
 	testCases := []struct {
 		name          string
-		accountID     int64
 		body          gin.H
 		buildStubs    func(store *mockdb.MockStore)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
-			name:      "OK",
-			accountID: account.ID,
+			name: "OK",
 			body: gin.H{
 				"owner":    account.Owner,
 				"currency": account.Currency,
@@ -136,27 +134,20 @@ func TestCreateAccountAPI(t *testing.T) {
 			},
 		},
 		{
-			name:      "InternalError",
-			accountID: account.ID,
+			name: "InternalError",
 			body: gin.H{
 				"owner":    account.Owner,
 				"currency": account.Currency,
 			},
 			buildStubs: func(store *mockdb.MockStore) {
-				arg := db.CreateAccountParams{
-					Owner:    account.Owner,
-					Currency: account.Currency,
-					Balance:  0,
-				}
-				store.EXPECT().CreateAccount(gomock.Any(), arg).Times(1).Return(db.Account{}, sql.ErrConnDone)
+				store.EXPECT().CreateAccount(gomock.Any(), gomock.Any()).Times(1).Return(db.Account{}, sql.ErrConnDone)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
 		{
-			name:      "InvalidCurrency",
-			accountID: account.ID,
+			name: "InvalidCurrency",
 			body: gin.H{
 				"owner":    account.Owner,
 				"currency": "invalid",

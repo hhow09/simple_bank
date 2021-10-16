@@ -346,3 +346,8 @@ type Server struct {
     - if we hash same password twice, output should be different
 - implement `createUser` handler in [user.go](./api/user.go).
     - check [go-playground/validator - Baked-in Validations](https://github.com/go-playground/validator#baked-in-validations).
+
+### 18. How to write stronger unit tests with a custom gomock matcher
+- [user_test.go](./api/user_test.go)
+    - first `randomUser()` to generate a random `user` as input
+    - compare the input `user` with API result, the password part should be checked with custom matcher since hashing 2 times will generate different result.
