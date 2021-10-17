@@ -351,3 +351,28 @@ type Server struct {
 - [user_test.go](./api/user_test.go)
     - first `randomUser()` to generate a random `user` as input
     - compare the input `user` with API result, the password part should be checked with custom matcher since hashing 2 times will generate different result.
+
+### 19. [PASETO](https://github.com/paragonie/paseto) better than JWT
+#### JWT
+- composed of: `base64(Header)` + `base64(Payload)` + `base64(Signature)`
+- for local use
+    - symmetric digital signature algorithm: use same secrete key to sign and verify
+- for public use
+    - asymmetric digital signature algorithm: use private key to sign token and public key to verify token.
+- cons: some algorithms are known to be vulnerable
+- cons: prone to **trivial token forgery**: 
+    - Send a header that specifies the `none` algorithm be used
+    - Send a header that specifies the `HS256` algorithm when the application normally signs messages with an RSA public key.
+#### PASETO
+- [A Thorough Introduction to PASETO](https://developer.okta.com/blog/2019/10/17/a-thorough-introduction-to-paseto)
+- similar to JWT
+- for local use
+    - symmetric encryption: use same secrete key to sign and verify
+    - composed of: `Version` + `local` + `encrypted(Payload)` + `base64(Footer)`
+    - Payload: `data` + `expiration date` + `Nonce` + `Auth Tag`
+- for Public use
+    - symmetric encryption: use same secrete key to sign and verify
+    - composed of: `Version` + `public` + `base64(signed string)` 
+- Pros: Stronger algorithms than JWT.
+- Pros: No trivial forgery since you don't need to choose algorithm.
+- Pros: local `Payload` is encrypted, there won’t be any way for attackers to see any of your payload data without your secret key.
