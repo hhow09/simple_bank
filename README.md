@@ -376,3 +376,6 @@ type Server struct {
 - Pros: Stronger algorithms than JWT.
 - Pros: No trivial forgery since you don't need to choose algorithm.
 - Pros: local `Payload` is encrypted, there won’t be any way for attackers to see any of your payload data without your secret key.
+
+### 20. How to create and verify JWT & PASETO token in Golang
+- [token](./token)
