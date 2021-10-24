@@ -378,4 +378,9 @@ type Server struct {
 - Pros: local `Payload` is encrypted, there won’t be any way for attackers to see any of your payload data without your secret key.
 
 ### 20. How to create and verify JWT & PASETO token in Golang
-- [token](./token)
+- [token](./token) package
+
+### 21. Implement login user API that returns PASETO or JWT access token in Go
+- add config of `TOKEN_SYMMETRIC_KEY` and `ACCESS_TOKEN_DURATION` as server config
+- setup [loginUser](./api/user.go) API
+- write test cases in [user_test.go](./api/user_test.go)
