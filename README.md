@@ -384,3 +384,15 @@ type Server struct {
 - add config of `TOKEN_SYMMETRIC_KEY` and `ACCESS_TOKEN_DURATION` as server config
 - setup [loginUser](./api/user.go) API
 - write test cases in [user_test.go](./api/user_test.go)
+
+### 22. Implement authentication middleware and authorization rules in Golang using Gin
+- setup [middleware.go](./api/middleware.go) and [middleware_test.go](./api/middleware_test.go) to setup token verification for routes
+- setup `router.Group("/").Use(authMiddleware(server.tokenMaker))` in [server.go](./api/server.go)
+- update the auth rules for apis
+    - `createUser`: public
+    - `CreateAccount`: auth middleware, a user can only create accounts it owns.
+    - `getAccount`: auth middleware, can only see accounts created by the request user itself.
+    - `listAccounts`: auth middleware, can only see accounts created by the request user itself.
+        - add `WHERE owner = $1` for listAccount Query
+    - `CreateTransfer`: auth middleware, fromAccount should be the account owned by user itself.
+- update unit test with `setupAuth` 
