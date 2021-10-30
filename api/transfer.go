@@ -32,6 +32,7 @@ func (server *Server) CreateTransfer(ctx *gin.Context) {
 	if fromAccount.Owner != authPayload.Username {
 		err := errors.New("from account doesn't belongs to the current user")
 		ctx.JSON(http.StatusUnauthorized, err)
+		return
 	}
 
 	_, valid = server.validAccount(ctx, req.ToAccountID, req.Currency)
