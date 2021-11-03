@@ -396,3 +396,16 @@ type Server struct {
         - add `WHERE owner = $1` for listAccount Query
     - `CreateTransfer`: auth middleware, fromAccount should be the account owned by user itself.
 - update unit test with `setupAuth` 
+
+### 23. Build a minimal Golang Docker image with a multistage Dockerfile
+- `docker build . -t simple_bank:latest`
+- `docker run --name simple_bank -p 8080:8080 -e GIN_MODE=release simple_bank:latest`
+### 24. Use docker network to connect 2 stand-alone containers
+- Issue: run `make postgres12 && make serverdocker` will get `"error": "dial tcp 127.0.0.1:5432: connect: connection refused"`.
+    - since `postgres12` and `simple_bank` are running in different container.
+    - Solution: 
+        - `docker network create bank-network` (`make network`)
+        - `docker run ... --network bank-network`
+        - replace `localhost` in `DB_SOURCE` with `host.docker.internal`
+        (`DB_SOURCE=postgresql://root:secret@host.docker.internal:5432/simple_bank?sslmode=disable`)
+    - ref: [docker network](https://docs.docker.com/network/)
