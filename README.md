@@ -396,3 +396,5 @@ type Server struct {
         - add `WHERE owner = $1` for listAccount Query
     - `CreateTransfer`: auth middleware, fromAccount should be the account owned by user itself.
 - update unit test with `setupAuth` 
+
+### 23. Build a minimal Golang Docker image with a multistage Dockerfile
