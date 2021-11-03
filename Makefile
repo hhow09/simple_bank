@@ -4,6 +4,9 @@ network:
 postgres:
 	docker run --name postgres12 --network bank-network -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:12-alpine
 
+serverdocker:
+	docker run --name simple_bank -p 8080:8080 -e GIN_MODE=release --network bank-network simple_bank:latest
+
 mysql:
 	docker run --name mysql8 -p 3306:3306  -e MYSQL_ROOT_PASSWORD=secret -d mysql:8
 
@@ -40,4 +43,4 @@ mock:
 dockerexecpostgres:
 	docker exec -it postgres12 psql
 
-.PHONY: network postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 sqlc test server mock dockerexecpostgres
+.PHONY: network postgres serverdocker createdb dropdb migrateup migratedown migrateup1 migratedown1 sqlc test server mock dockerexecpostgres
