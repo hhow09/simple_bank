@@ -409,3 +409,12 @@ type Server struct {
         - replace `localhost` in `DB_SOURCE` with `host.docker.internal`
         (`DB_SOURCE=postgresql://root:secret@host.docker.internal:5432/simple_bank?sslmode=disable`)
     - ref: [docker network](https://docs.docker.com/network/)
+
+### 25. write docker-compose file and control service start-up orders with wait-for.sh
+- write [docker-compose.yaml](docker-compose.yaml) to start multiple service at once
+    - define environment variables
+    - add db migration into [start.sh](./start.sh)
+    - `docker compose up --force-recreate --build api`
+- api should wait for postgres to start up
+    - use [depends_on](https://docs.docker.com/compose/compose-file/compose-file-v3/#depends_on)
+    - use [wait-for.sh](https://github.com/eficode/wait-for)
