@@ -43,7 +43,7 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker: %w", err)
 	}
-	server := &Server{store: store, tokenMaker: tokenMaker}
+	server := &Server{store: store, tokenMaker: tokenMaker, config: config}
 	//binding custom validator
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		//registor validator to gin
