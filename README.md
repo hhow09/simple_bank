@@ -392,3 +392,8 @@ type Server struct {
 - api should wait for postgres to start up
     - use [depends_on](https://docs.docker.com/compose/compose-file/compose-file-v3/#depends_on)
     - use [wait-for.sh](https://github.com/eficode/wait-for)
+
+### 26. Generate API Doc with [swaggo/swag](https://github.com/swaggo/swag)
+- `make swagger` then swagger files will be in [docs](./docs)
+- run the app
+- check http://localhost:8080/swagger/index.html

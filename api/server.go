@@ -7,9 +7,29 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	db "github.com/hhow09/simple_bank/db/sqlc"
+	docs "github.com/hhow09/simple_bank/docs"
 	"github.com/hhow09/simple_bank/token"
 	"github.com/hhow09/simple_bank/util"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// @title Simple Bank API
+// @version 1.0
+// @description A simple bank service.
+
+// @contact.name API Support
+// @contact.url https://github.com/hhow09/simple_bank/issues
+// @contact.email hhow09@gmail.com
+
+// @host localhost:8080
+// @BasePath /
+
+// @securityDefinitions.basic BasicAuth
+
+// @securityDefinitions.apikey authorization
+// @in header
+// @name Authorization
 
 type Server struct {
 	config     util.Config
@@ -34,10 +54,10 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 }
 
 func (server *Server) setupRouter() {
+	docs.SwaggerInfo.BasePath = "/"
 	router := gin.Default()
 	router.POST("/users", server.createUser)
 	router.POST("/users/login", server.loginUser)
-
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
 
 	authRoutes.POST("/accounts", server.CreateAccount)
@@ -45,6 +65,7 @@ func (server *Server) setupRouter() {
 	authRoutes.GET("/accounts", server.listAccounts)
 
 	authRoutes.POST("/transfers", server.CreateTransfer)
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	//add routes to router
 	server.router = router
 }

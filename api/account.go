@@ -15,6 +15,18 @@ type CreateAccountRequest struct {
 	Currency string `json:"currency" binding:"required,currency"`
 }
 
+// CreateAccount godoc
+// @Summary Create Account
+// @Description create account by a already-login user
+// @Tags accounts
+// @Accept  json
+// @Produce  json
+// @Security authorization
+// @Param currency body string true "currency"
+// @Success 200 {object} CreateAccountRequest
+// @Failure 400 {object} gin.H
+// @Failure 403 {object} gin.H
+// @Router /accounts [post]
 func (server *Server) CreateAccount(ctx *gin.Context) {
 	var req CreateAccountRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -50,6 +62,18 @@ type getAccountRequest struct {
 	ID int64 `uri:"id" binding:"required,min=1"`
 }
 
+// getAccount godoc
+// @Summary get Account
+// @Description get account by account id
+// @Tags accounts
+// @Accept  json
+// @Produce  json
+// @Security authorization
+// @Param id path integer true "Account ID"
+// @Success 200 {object} db.Account
+// @Failure 400 {object} gin.H
+// @Failure 403 {object} gin.H
+// @Router /accounts/:id [get]
 func (server *Server) getAccount(ctx *gin.Context) {
 	var req getAccountRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
@@ -82,6 +106,19 @@ type listAccountRequest struct {
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
+// listAccounts godoc
+// @Summary list Account
+// @Description list account under current user
+// @Tags accounts
+// @Accept  json
+// @Produce  json
+// @Security authorization
+// @Param page_id query int true "page id minimum(1)"
+// @Param page_size query int true "page minimum(5) maximum(10)"
+// @Success 200 {object} []db.Account
+// @Failure 400 {object} gin.H
+// @Failure 403 {object} gin.H
+// @Router /accounts [get]
 func (server *Server) listAccounts(ctx *gin.Context) {
 	var req listAccountRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {

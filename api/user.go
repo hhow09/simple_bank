@@ -37,6 +37,20 @@ func newUserResponse(user db.User) userResponse {
 	}
 }
 
+// createUser godoc
+// @Summary Create a User
+// @Description Create User by json user params
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param username body string true "user name"
+// @Param password body string true "passward minLength(6)"
+// @Param fullname body string true "full name"
+// @Param email body string true "email"
+// @Success 200 {object} userResponse
+// @Failure 400 {object} gin.H
+// @Failure 500 {object} gin.H
+// @Router /users [post]
 func (server *Server) createUser(ctx *gin.Context) {
 	var req createUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -81,6 +95,20 @@ type loginUserResponse struct {
 	User        userResponse `json:"user"`
 }
 
+// loginUser godoc
+// @Summary User Login
+// @Description Login with username and password
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param username body string true "user name"
+// @Param password body string true "passward minLength(6)"
+// @Success 200 {object} loginUserResponse
+// @Failure 400 {object} gin.H
+// @Failure 401 {object} gin.H
+// @Failure 404 {object} gin.H
+// @Failure 500 {object} gin.H
+// @Router /users/login [post]
 func (server *Server) loginUser(ctx *gin.Context) {
 	var req loginUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {

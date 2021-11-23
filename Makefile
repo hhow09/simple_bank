@@ -43,4 +43,7 @@ mock:
 dockerexecpostgres:
 	docker exec -it postgres12 psql
 
-.PHONY: network postgres serverdocker createdb dropdb migrateup migratedown migrateup1 migratedown1 sqlc test server mock dockerexecpostgres
+swagger:
+	swag init -g ./api/server.go
+
+.PHONY: network postgres serverdocker createdb dropdb migrateup migratedown migrateup1 migratedown1 sqlc test server mock dockerexecpostgres swagger

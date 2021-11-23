@@ -18,6 +18,21 @@ type transferRequest struct {
 	Currency      string `json:"currency" binding:"required,currency"`
 }
 
+// CreateTransfer godoc
+// @Summary Create Transfer
+// @Description Create transfer from from_account_id to to_account_id which has same currency
+// @Tags transfers
+// @Accept  json
+// @Produce  json
+// @Security authorization
+// @Param from_account_id body integer true "from_account_id"
+// @Param to_account_id body integer true "to_account_id"
+// @Param amount body integer true "amount"
+// @Param currency body string true "currency"
+// @Success 200 {object} db.TransferTxResult
+// @Failure 400 {object} gin.H
+// @Failure 403 {object} gin.H
+// @Router /transfers [post]
 func (server *Server) CreateTransfer(ctx *gin.Context) {
 	var req transferRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
