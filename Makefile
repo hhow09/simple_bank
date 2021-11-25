@@ -40,10 +40,10 @@ server:
 mock:
 	mockgen -package mockdb -destination db/mock/store.go github.com/hhow09/simple_bank/db/sqlc Store
 
-dockerexecpostgres:
-	docker exec -it postgres12 psql
-
 swagger:
 	swag init -g ./api/server.go
 
-.PHONY: network postgres serverdocker createdb dropdb migrateup migratedown migrateup1 migratedown1 sqlc test server mock dockerexecpostgres swagger
+dockercomposerebuild:
+	docker compose up --force-recreate --build api
+
+.PHONY: network postgres serverdocker createdb dropdb migrateup migratedown migrateup1 migratedown1 sqlc test server mock swagger dockercomposerebuild

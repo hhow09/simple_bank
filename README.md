@@ -1,9 +1,20 @@
 # Simple Bank
-## Simple bank service
+## Introduction
+- This is a simple bank service built with Golang (gin), PostgreSQL, sqlc, PASETO.
+- Easy to maintain, preferment also type-safe code for query generated from sqlc.
+- Test-driven development style with high test coverage using `golang/mock`
+- Token-based authentication using PASETO and auth middleware.
+- Containerized service, easy to run with `docker-compose`
+- Separated config into env var.
+- RESTful API with auto generated api doc
 
-1. Create and manage bank accounts, which are composed of **owner’s name**, **balance**, and **currency**.
-2. Record all balance changes to each of the account. So every time some money is added to or subtracted from the account, an account entry record will be created.
-3. Perform a money transfer between 2 accounts. This should happen within a transaction, so that either both accounts’ balance are updated successfully or none of them are.
+## Functions
+- User can create a `User` based on unique `username` and `email`.
+- A log-in `User` can create multiple accounts with different currencies.
+- Record all account balance changes in `Entry` table. Whenever some money is added to or subtracted from the account, an account entry record will be created.
+- `/transfer` api, provide a money transfer function between 2 accounts. This happen **within a transaction** and transfer is thread-safe operation.
+## How to Run the Service
+- `docker compose up`
 
 
 ## Database Schema
