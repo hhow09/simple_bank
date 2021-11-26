@@ -273,9 +273,9 @@ Steps:
     - define routing and handlers
     - use [Model binding and validation](https://github.com/gin-gonic/gin#model-binding-and-validation) to do param validation.
 
-### 12. Load config from file & environment variables in Golang with Viper
-- https://github.com/spf13/viper
-
+### 12. Load config from file & environment variables in Golang with [Viper](https://github.com/spf13/viper)
+- default config [app.env](./app.env)
+- env var can be further override with `environment` in [docker-compose.yaml](./docker-compose.yaml) >
 
 ### 13. Mock DB for testing HTTP API in Go and achieve 100% coverage
 - We need a mockDB
