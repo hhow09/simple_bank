@@ -170,15 +170,42 @@ make dockerexecpostgres
     WHERE id = $1 LIMIT 1;
     FOR UPDATE
     ```
-- Now we will encounter `pq: deadlock detected`
-    - simulate the QUERY BEING EXECUTED TO IDENTIFY LOCK
-    - [PSQL - Lock Monitoring](https://wiki.postgresql.org/wiki/Lock_Monitoring)
-    - deadlock are created between 2 transactions of `INSERT INTO transfers` and `SELECT * FROM accounts FOR UPDATE` 
-- Handle Deadlock
-    - since `transfers` Table has foreign key `from_account_id` and `to_account_id` referencing `accounts` Table
-    - `INSERT INTO transfers` will acquire a `ExclusiveLock` on `accounts` Table to ensure that `ID` of accounts are not consistent.
-    - However we are only update the `Balance` of account. The lock is unneeded.
-    - change: `FOR UPDATE` -> `FOR NO KEY UPDATE`
+    
+#### Deadlock
+```sql
+BEGIN;
+INSERT INTO transfers (from_account_id, to_account_id, amount) VALUES (1, 2, 10) RETURNING *: -- exclusive lock on accounts
+
+INSERT INTO entries (account_id, amount) VALUES (1, -10) RETURNING
+INSERT INTO entries (account_id, amount) VALUES (2, 10) RETURNING *;
+SELECT * FROM accounts WHERE id = 1 FOR UPDATE;
+UPDATE accounts SET balance = 90 WHERE id = 1 RETURNING *;
+
+SELECT * FROM accounts WHERE id = 2 FOR UPDATE; -- exclusive lock on accounts
+UPDATE accounts SET balance = 110 WHERE id = 2 RETURNING *;
+COMMIT;
+```
+- since `transfers` Table has foreign key `from_account_id` and `to_account_id` referencing `accounts` Table
+- `INSERT INTO transfers` will acquire a `RowExclusiveLock` on accounts Table to ensure that ID of accounts are not consistent.
+- `SELECT * FROM accounts ... FOR UPDATE` will also acquire a lock on accounts
+
+### Deadlock happens
+| TX1                                   	| TX2                                   	|                                    	|
+|---------------------------------------	|---------------------------------------	|------------------------------------	|
+| BEWGIN                                	|                                       	|                                    	|
+|                                       	| BEGIN                                 	|                                    	|
+|                                       	| INSERT INTO TRANSFERS                 	| TX2 lock on account table          	|
+|                                       	| INSERT INTO ENTRIES                   	|                                    	|
+|                                       	| INSERT INTO ENTRIES                   	|                                    	|
+| INSERT INTO TRANSFERS                 	|                                       	| TX1 lock on account table          	|
+|                                       	| SELECT * FROM accounts ... FOR UPDATE 	| waiting lock from TX1              	|
+| INSERT INTO ENTRIES                   	|                                       	|                                    	|
+| INSERT INTO ENTRIES                   	|                                       	|                                    	|
+| SELECT * FROM accounts ... FOR UPDATE 	|                                       	| waiting lock from TX2<br>deadlock! 	|
+
+### Solution
+- we are only update the `balance` of account. The lock is unneeded.
+- change: `FOR UPDATE` -> `FOR NO KEY UPDATE`
 - Refactor 
     - `getAccountForUpdate`+`UpdateAccount` = `AddAccountBalance`
 
