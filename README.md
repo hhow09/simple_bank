@@ -111,6 +111,16 @@
     make test
     ```
 
+### Play Manually with Postman
+1. install [Postman](https://www.postman.com/)
+2. import [postman-cmds.json](./postman-cmds.json)
+3. have fun
+    1. create user
+    2. login
+    3. JWT header: after login, copy the `access_token` in response and update variable the `auth header` with `bearer {access_token}`
+4. check `http://localhost:8080/swagger/index.html` for API doc
+
+
 ## Progress
 ### 1. Setup local environment
 
