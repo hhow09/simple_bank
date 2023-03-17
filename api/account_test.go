@@ -136,7 +136,7 @@ func TestGetAccountAPI(t *testing.T) {
 
 }
 
-//response body should match input
+// response body should match input
 func requireBodyMatchAcoount(t *testing.T, body *bytes.Buffer, account db.Account) {
 	data, err := ioutil.ReadAll(body)
 	require.NoError(t, err)
@@ -375,7 +375,7 @@ func TestListAccountsAPI(t *testing.T) {
 	}
 }
 
-//generate random account
+// generate random account
 func randomAccount(owner string) db.Account {
 	return db.Account{
 		ID:       util.RandomInt(1, 1000),

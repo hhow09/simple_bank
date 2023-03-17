@@ -11,7 +11,7 @@ import (
 	"github.com/lib/pq"
 )
 
-//alphanum: username should contian ASCII alphanumeric characters only
+// alphanum: username should contian ASCII alphanumeric characters only
 type createUserRequest struct {
 	Username string `json:"username" binding:"required,alphanum"`
 	Password string `json:"password" binding:"required,min=6"`

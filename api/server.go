@@ -1,7 +1,9 @@
 package api
 
 import (
+	"context"
 	"fmt"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -12,6 +14,7 @@ import (
 	"github.com/hhow09/simple_bank/util"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.uber.org/fx"
 )
 
 // @title Simple Bank API
@@ -38,11 +41,7 @@ type Server struct {
 	tokenMaker token.Maker
 }
 
-func NewServer(config util.Config, store db.Store) (*Server, error) {
-	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
-	if err != nil {
-		return nil, fmt.Errorf("cannot create token maker: %w", err)
-	}
+func NewServer(config util.Config, store db.Store, tokenMaker token.Maker) (*Server, error) {
 	server := &Server{store: store, tokenMaker: tokenMaker, config: config}
 	//binding custom validator
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
@@ -77,3 +76,27 @@ func (server *Server) Start(address string) error {
 func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
 }
+
+func registerHooks(lc fx.Lifecycle, server *Server) {
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			go func() error {
+				err := server.Start(server.config.ServerAddress)
+				if err != nil {
+					log.Fatal("error starting server: ", err)
+				}
+				return nil
+			}()
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			fmt.Println("Stopping server")
+			return nil
+		},
+	})
+}
+
+var Module = fx.Options(
+	fx.Provide(NewServer),
+	fx.Invoke(registerHooks),
+)

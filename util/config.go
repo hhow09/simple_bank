@@ -16,9 +16,16 @@ type Config struct {
 	AccessTokenDuration time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 }
 
+// relative path of app.env
+type ConfigPath string //
+
+func (cp ConfigPath) ToString() string {
+	return string(cp)
+}
+
 // LoadConfig reads configuration from file or environment variables.
-func LoadConfig(path string) (config Config, err error) {
-	viper.AddConfigPath(path)
+func LoadConfig(p ConfigPath) (config Config, err error) {
+	viper.AddConfigPath(p.ToString())
 	viper.SetConfigName("app")
 	viper.SetConfigType("env")
 
