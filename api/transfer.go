@@ -7,8 +7,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hhow09/simple_bank/constants"
 	db "github.com/hhow09/simple_bank/db/sqlc"
 	"github.com/hhow09/simple_bank/token"
+	"github.com/hhow09/simple_bank/util"
 )
 
 type transferRequest struct {
@@ -36,14 +38,14 @@ type transferRequest struct {
 func (server *Server) CreateTransfer(ctx *gin.Context) {
 	var req transferRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
 	fromAccount, valid := server.validAccount(ctx, req.FromAccountID, req.Currency)
 	if !valid {
 		return
 	}
-	authPayload := ctx.MustGet(authPayloadKey).(*token.Payload)
+	authPayload := ctx.MustGet(constants.AuthPayloadKey).(*token.Payload)
 	if fromAccount.Owner != authPayload.Username {
 		err := errors.New("from account doesn't belongs to the current user")
 		ctx.JSON(http.StatusUnauthorized, err)
@@ -63,7 +65,7 @@ func (server *Server) CreateTransfer(ctx *gin.Context) {
 
 	result, err := server.store.TransferTx(ctx, arg)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
 
@@ -74,16 +76,16 @@ func (server *Server) validAccount(ctx *gin.Context, accountID int64, currency s
 	account, err := server.store.GetAccount(ctx, accountID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			ctx.JSON(http.StatusNotFound, util.ErrorResponse(err))
 			return account, false
 		}
 
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
 		return account, false
 	}
 	if account.Currency != currency {
 		err := fmt.Errorf("account [%d] currency mismatch: %s vs %s", account.ID, account.Currency, currency)
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return account, false
 	}
 

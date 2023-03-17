@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/hhow09/simple_bank/api"
 	db "github.com/hhow09/simple_bank/db/sqlc"
+	"github.com/hhow09/simple_bank/lib"
 	"github.com/hhow09/simple_bank/token"
 	"github.com/hhow09/simple_bank/util"
 	_ "github.com/lib/pq"
@@ -17,6 +18,7 @@ func main() {
 		fx.Provide(util.LoadConfig),
 		token.Module,
 		db.Module,
+		lib.Module,
 		api.Module,
 	).Run()
 }

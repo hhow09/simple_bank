@@ -1,4 +1,4 @@
-package api
+package controllers
 
 import (
 	"database/sql"
@@ -6,10 +6,23 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hhow09/simple_bank/constants"
 	db "github.com/hhow09/simple_bank/db/sqlc"
 	"github.com/hhow09/simple_bank/token"
+	"github.com/hhow09/simple_bank/util"
 	"github.com/lib/pq"
 )
+
+type AccountController struct {
+	store db.Store
+}
+
+// AccountController creates new account controller
+func NewAccountController(store db.Store) AccountController {
+	return AccountController{
+		store: store,
+	}
+}
 
 type CreateAccountRequest struct {
 	Currency string `json:"currency" binding:"required,currency"`
@@ -27,13 +40,13 @@ type CreateAccountRequest struct {
 // @Failure 400 {object} gin.H
 // @Failure 403 {object} gin.H
 // @Router /accounts [post]
-func (server *Server) CreateAccount(ctx *gin.Context) {
+func (c *AccountController) CreateAccount(ctx *gin.Context) {
 	var req CreateAccountRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
-	authPayload := ctx.MustGet(authPayloadKey).(*token.Payload)
+	authPayload := ctx.MustGet(constants.AuthPayloadKey).(*token.Payload)
 
 	arg := db.CreateAccountParams{
 		Owner:    authPayload.Username,
@@ -41,17 +54,17 @@ func (server *Server) CreateAccount(ctx *gin.Context) {
 		Balance:  0,
 	}
 
-	account, err := server.store.CreateAccount(ctx, arg)
+	account, err := c.store.CreateAccount(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "foreign_key_violation", "unique_violation":
-				ctx.JSON(http.StatusForbidden, errorResponse(err))
+				ctx.JSON(http.StatusForbidden, util.ErrorResponse(err))
 				return
 			}
 		}
 
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
 
@@ -74,25 +87,25 @@ type getAccountRequest struct {
 // @Failure 400 {object} gin.H
 // @Failure 403 {object} gin.H
 // @Router /accounts/:id [get]
-func (server *Server) getAccount(ctx *gin.Context) {
+func (c *AccountController) GetAccount(ctx *gin.Context) {
 	var req getAccountRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
 
-	account, err := server.store.GetAccount(ctx, req.ID)
+	account, err := c.store.GetAccount(ctx, req.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			ctx.JSON(http.StatusNotFound, util.ErrorResponse(err))
 			return
 		}
 
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
 		return
 	}
 
-	authPayload := ctx.MustGet(authPayloadKey).(*token.Payload)
+	authPayload := ctx.MustGet(constants.AuthPayloadKey).(*token.Payload)
 	if account.Owner != authPayload.Username {
 		err := errors.New("account doesn't belongs to the authenticated user.")
 		ctx.JSON(http.StatusUnauthorized, err)
@@ -119,22 +132,22 @@ type listAccountRequest struct {
 // @Failure 400 {object} gin.H
 // @Failure 403 {object} gin.H
 // @Router /accounts [get]
-func (server *Server) listAccounts(ctx *gin.Context) {
+func (c *AccountController) ListAccounts(ctx *gin.Context) {
 	var req listAccountRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
 		return
 	}
-	authPayload := ctx.MustGet(authPayloadKey).(*token.Payload)
+	authPayload := ctx.MustGet(constants.AuthPayloadKey).(*token.Payload)
 	arg := db.ListAccountsParams{
 		Owner:  authPayload.Username,
 		Limit:  req.PageSize,
 		Offset: (req.PageID - 1) * req.PageSize,
 	}
 
-	accounts, err := server.store.ListAccounts(ctx, arg)
+	accounts, err := c.store.ListAccounts(ctx, arg)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
 		return
 	}
 

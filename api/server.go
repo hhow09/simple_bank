@@ -8,12 +8,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"github.com/hhow09/simple_bank/api/controllers"
+	"github.com/hhow09/simple_bank/api/middlewares"
+	"github.com/hhow09/simple_bank/api/routes"
 	db "github.com/hhow09/simple_bank/db/sqlc"
-	docs "github.com/hhow09/simple_bank/docs"
+	"github.com/hhow09/simple_bank/lib"
 	"github.com/hhow09/simple_bank/token"
 	"github.com/hhow09/simple_bank/util"
-	swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/fx"
 )
 
@@ -41,40 +42,24 @@ type Server struct {
 	tokenMaker token.Maker
 }
 
-func NewServer(config util.Config, store db.Store, tokenMaker token.Maker) (*Server, error) {
-	server := &Server{store: store, tokenMaker: tokenMaker, config: config}
+func NewServer(config util.Config, store db.Store, tokenMaker token.Maker, requestHandler lib.RequestHandler) (*Server, error) {
+	server := &Server{store: store, tokenMaker: tokenMaker, config: config, router: requestHandler.Gin}
 	//binding custom validator
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		//registor validator to gin
 		v.RegisterValidation("currency", validCurrency)
 	}
-	server.setupRouter()
+	// server.setupRouter()
 	return server, nil
 }
 
-func (server *Server) setupRouter() {
-	docs.SwaggerInfo.BasePath = "/"
-	router := gin.Default()
-	router.POST("/users", server.createUser)
-	router.POST("/users/login", server.loginUser)
-	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
+// func (server *Server) setupRouter() {
 
-	authRoutes.POST("/accounts", server.CreateAccount)
-	authRoutes.GET("/accounts/:id", server.getAccount)
-	authRoutes.GET("/accounts", server.listAccounts)
-
-	authRoutes.POST("/transfers", server.CreateTransfer)
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	//add routes to router
-	server.router = router
-}
+// 	authRoutes.POST("/transfers", server.CreateTransfer)
+// }
 
 func (server *Server) Start(address string) error {
 	return server.router.Run(address)
-}
-
-func errorResponse(err error) gin.H {
-	return gin.H{"error": err.Error()}
 }
 
 func registerHooks(lc fx.Lifecycle, server *Server) {
@@ -96,7 +81,19 @@ func registerHooks(lc fx.Lifecycle, server *Server) {
 	})
 }
 
+func setupRoutes(lc fx.Lifecycle, r routes.Routes) {
+	r.Setup()
+}
+func setupMiddleware(lc fx.Lifecycle, m middlewares.Middlewares) {
+	m.Setup()
+}
+
 var Module = fx.Options(
+	controllers.Module,
+	routes.Module,
+	middlewares.Module,
 	fx.Provide(NewServer),
+	fx.Invoke(setupRoutes),
+	fx.Invoke(setupMiddleware),
 	fx.Invoke(registerHooks),
 )
