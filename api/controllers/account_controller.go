@@ -107,16 +107,16 @@ func (c *AccountController) GetAccount(ctx *gin.Context) {
 
 	authPayload := ctx.MustGet(constants.AuthPayloadKey).(*token.Payload)
 	if account.Owner != authPayload.Username {
-		err := errors.New("account doesn't belongs to the authenticated user.")
-		ctx.JSON(http.StatusUnauthorized, err)
+		err := errors.New("account doesn't belongs to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, util.ErrorResponse(err))
+		return
 	}
-
 	ctx.JSON(http.StatusOK, account)
 }
 
 type listAccountRequest struct {
-	PageID   int32 `form:"page_id" binding:"required,min=1"`
-	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+	PageID   int32 `form:"page_id,default=1" binding:"min=1"`
+	PageSize int32 `form:"page_size,default=5" binding:"min=5,max=10"`
 }
 
 // listAccounts godoc
