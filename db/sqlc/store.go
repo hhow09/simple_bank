@@ -4,6 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+
+	"github.com/hhow09/simple_bank/util"
+	"go.uber.org/fx"
 )
 
 type Store interface {
@@ -15,6 +18,15 @@ type Store interface {
 type SQLStore struct {
 	*Queries
 	db *sql.DB
+}
+
+// openSQL connection
+func openSQL(config util.Config) (*sql.DB, error) {
+	conn, err := sql.Open(config.DBDriver, config.DBSource)
+	if err != nil {
+		return nil, err
+	}
+	return conn, nil
 }
 
 // creates a new Store
@@ -123,3 +135,8 @@ func addMoney(
 	})
 	return
 }
+
+var Module = fx.Options(
+	fx.Provide(openSQL),
+	fx.Provide(NewStore),
+)

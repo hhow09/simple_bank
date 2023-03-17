@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hhow09/simple_bank/api/middlewares"
+	"github.com/hhow09/simple_bank/constants"
 	"github.com/hhow09/simple_bank/token"
 	"github.com/stretchr/testify/require"
 )
@@ -21,7 +23,7 @@ func addAuth(t *testing.T, request *http.Request, tokenMaker token.Maker, authTy
 	require.NoError(t, err)
 
 	authHeader := fmt.Sprintf("%s %s", authType, token)
-	request.Header.Set(authHeaderKey, authHeader)
+	request.Header.Set(constants.AuthHeaderKey, authHeader)
 }
 
 func TestAuthMiddleware(t *testing.T) {
@@ -33,7 +35,7 @@ func TestAuthMiddleware(t *testing.T) {
 		{
 			name: "OK",
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuth(t, request, tokenMaker, authTypeBearer, "user", time.Minute)
+				addAuth(t, request, tokenMaker, constants.AuthTypeBearer, "user", time.Minute)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, recorder.Code, http.StatusOK)
@@ -68,7 +70,7 @@ func TestAuthMiddleware(t *testing.T) {
 		{
 			name: "Expired Token",
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuth(t, request, tokenMaker, authTypeBearer, "user", -time.Minute)
+				addAuth(t, request, tokenMaker, constants.AuthTypeBearer, "user", -time.Minute)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, recorder.Code, http.StatusUnauthorized)
@@ -80,7 +82,8 @@ func TestAuthMiddleware(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			server := newTestServer(t, nil)
 			//setup simple test route
-			server.router.GET(authPath, authMiddleware(server.tokenMaker), func(ctx *gin.Context) {
+			authMiddleware := middlewares.NewAuthMiddleware(server.tokenMaker)
+			server.router.GET(authPath, authMiddleware.Handler(), func(ctx *gin.Context) {
 				//simple response
 				ctx.JSON(http.StatusOK, gin.H{})
 			})

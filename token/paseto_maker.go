@@ -4,17 +4,19 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hhow09/simple_bank/util"
 	"github.com/o1egl/paseto"
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
-//implements Maker interface
+// implements Maker interface
 type PasetoMaker struct {
 	paseto       *paseto.V2
 	symmetricKey []byte
 }
 
-func NewPasetoMaker(symmetricKey string) (Maker, error) {
+func NewPasetoMaker(config util.Config) (Maker, error) {
+	symmetricKey := config.TokenSymmetricKey
 	if len(symmetricKey) != chacha20poly1305.KeySize {
 		return nil, fmt.Errorf("invalid key size: must be exactly %d characters, you have %d", chacha20poly1305.KeySize, len(symmetricKey))
 	}

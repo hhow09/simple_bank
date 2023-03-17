@@ -8,8 +8,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func newTestNewPasetoMaker() (Maker, error) {
+	return NewPasetoMaker(util.Config{TokenSymmetricKey: util.RandomString(32)})
+}
+
 func TestNewPasetoMaker(t *testing.T) {
-	maker, err := NewPasetoMaker(util.RandomString(32))
+	maker, err := newTestNewPasetoMaker()
 	require.NoError(t, err)
 
 	username := util.RandomOwner()
@@ -32,7 +36,7 @@ func TestNewPasetoMaker(t *testing.T) {
 }
 
 func TestExpiredPasetoToken(t *testing.T) {
-	maker, err := NewPasetoMaker(util.RandomString(32))
+	maker, err := newTestNewPasetoMaker()
 	require.NoError(t, err)
 
 	username := util.RandomOwner()
@@ -49,7 +53,7 @@ func TestExpiredPasetoToken(t *testing.T) {
 }
 
 func TestInvalidToken(t *testing.T) {
-	maker, err := NewPasetoMaker(util.RandomString(32))
+	maker, err := newTestNewPasetoMaker()
 	require.NoError(t, err)
 
 	payload, err := maker.VerifyToken(util.RandomString(10))

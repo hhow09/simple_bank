@@ -435,3 +435,6 @@ type Server struct {
 - `make swagger` then swagger files will be in [docs](./docs)
 - run the app
 - check http://localhost:8080/swagger/index.html
+
+### 26. Dependency Injection using [uber-go/fx](https://github.com/uber-go/fx)
+- reference: [dipeshdulal/clean-gin](https://github.com/dipeshdulal/clean-gin)
