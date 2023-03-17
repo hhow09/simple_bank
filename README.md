@@ -2,6 +2,7 @@
 ## Introduction
 - This is a simple bank service built with Golang (gin), PostgreSQL, sqlc, PASETO.
 - Easy to maintain, preferment also type-safe code for query generated from sqlc.
+- Structured and dependency injection with [uber-go/fx](https://github.com/uber-go/fx)
 - Test-driven development style with high test coverage using `golang/mock`
 - Token-based authentication using PASETO and auth middleware.
 - Containerized service, easy to run with `docker-compose`
