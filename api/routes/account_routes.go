@@ -14,13 +14,13 @@ type AccountRotes struct {
 
 // Setup user routes
 func (r AccountRotes) Setup() {
-	authRoutes := r.requestHandler.Gin.Group("/accounts").Use(r.authMiddleware.Handler())
-	authRoutes.POST("", r.controller.CreateAccount)
-	authRoutes.GET("/:id", r.controller.GetAccount)
-	authRoutes.GET("", r.controller.ListAccounts)
+	accountRoutes := r.requestHandler.Gin.Group("/accounts").Use(r.authMiddleware.Handler())
+	accountRoutes.POST("", r.controller.CreateAccount)
+	accountRoutes.GET("/:id", r.controller.GetAccount)
+	accountRoutes.GET("", r.controller.ListAccounts)
 }
 
-func NewAccountRotes(
+func NewAccountRoutes(
 	controller controllers.AccountController,
 	requestHandler lib.RequestHandler,
 	authMiddleware middlewares.AuthMiddleware,

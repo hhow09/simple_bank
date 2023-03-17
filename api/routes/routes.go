@@ -4,7 +4,8 @@ import "go.uber.org/fx"
 
 var Module = fx.Options(
 	fx.Provide(NewUserRoutes),
-	fx.Provide(NewAccountRotes),
+	fx.Provide(NewAccountRoutes),
+	fx.Provide(NewTransferRoutes),
 	// add more here
 	fx.Provide(NewSwaggerRoutes),
 	fx.Provide(NewRoutes),
@@ -22,10 +23,12 @@ func NewRoutes(
 	userRoutes UserRoutes,
 	swaggerRoutes SwaggerRoutes,
 	accountRoutes AccountRotes,
+	transferRoutes TransferRoutes,
 ) Routes {
 	return Routes{
 		userRoutes,
 		accountRoutes,
+		transferRoutes,
 		swaggerRoutes,
 	}
 }
