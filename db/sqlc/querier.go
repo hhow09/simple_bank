@@ -19,7 +19,9 @@ type Querier interface {
 	GetAccountByCurrencyForUpdate(ctx context.Context, arg GetAccountByCurrencyForUpdateParams) (Account, error)
 	GetAccountForUpdate(ctx context.Context, id int64) (Account, error)
 	GetEntry(ctx context.Context, id int64) (Entry, error)
+	// for deposit use
 	GetExtAccount(ctx context.Context, arg GetExtAccountParams) (Account, error)
+	// for deposit use
 	GetExtAccountForUpdate(ctx context.Context, arg GetExtAccountForUpdateParams) (Account, error)
 	GetTransfer(ctx context.Context, id int64) (Transfer, error)
 	GetUser(ctx context.Context, username string) (User, error)

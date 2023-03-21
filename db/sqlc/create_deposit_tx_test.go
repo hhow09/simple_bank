@@ -11,7 +11,7 @@ import (
 // create deposit:
 // 1. create transfer
 // 2. user's external account -= amount
-// 3. user's bank account += ammount
+// 3. user's bank account += amount
 func TestCreateDepositTx(t *testing.T) {
 	store := NewStore(testDB)
 	user := createRandomUser(t)

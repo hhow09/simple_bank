@@ -28,13 +28,15 @@ LIMIT 1
 FOR NO KEY UPDATE;
 
 -- name: GetExtAccount :one
+-- for deposit use
 SELECT * FROM accounts
 WHERE owner = $1 AND currency = $2 AND acc_type = 'external'
 LIMIT 1;
 
 -- name: GetExtAccountForUpdate :one
+-- for deposit use
 SELECT * FROM accounts
-WHERE owner = $1 AND currency = $2 AND acc_type = 'external'
+WHERE owner = $1 AND currency = $2 AND acc_type = 'external' 
 LIMIT 1
 FOR NO KEY UPDATE;
 

@@ -162,6 +162,7 @@ type GetExtAccountParams struct {
 	Currency string `json:"currency"`
 }
 
+// for deposit use
 func (q *Queries) GetExtAccount(ctx context.Context, arg GetExtAccountParams) (Account, error) {
 	row := q.db.QueryRowContext(ctx, getExtAccount, arg.Owner, arg.Currency)
 	var i Account
@@ -178,7 +179,7 @@ func (q *Queries) GetExtAccount(ctx context.Context, arg GetExtAccountParams) (A
 
 const getExtAccountForUpdate = `-- name: GetExtAccountForUpdate :one
 SELECT id, owner, balance, currency, created_at, acc_type FROM accounts
-WHERE owner = $1 AND currency = $2 AND acc_type = 'external'
+WHERE owner = $1 AND currency = $2 AND acc_type = 'external' 
 LIMIT 1
 FOR NO KEY UPDATE
 `
@@ -188,6 +189,7 @@ type GetExtAccountForUpdateParams struct {
 	Currency string `json:"currency"`
 }
 
+// for deposit use
 func (q *Queries) GetExtAccountForUpdate(ctx context.Context, arg GetExtAccountForUpdateParams) (Account, error) {
 	row := q.db.QueryRowContext(ctx, getExtAccountForUpdate, arg.Owner, arg.Currency)
 	var i Account
