@@ -102,6 +102,33 @@ func (q *Queries) GetAccount(ctx context.Context, id int64) (Account, error) {
 	return i, err
 }
 
+const getAccountByCurrencyForUpdate = `-- name: GetAccountByCurrencyForUpdate :one
+SELECT id, owner, balance, currency, created_at, acc_type FROM accounts
+WHERE currency = $1 AND owner = $2
+ AND acc_type = 'bank'
+LIMIT 1
+FOR NO KEY UPDATE
+`
+
+type GetAccountByCurrencyForUpdateParams struct {
+	Currency string `json:"currency"`
+	Owner    string `json:"owner"`
+}
+
+func (q *Queries) GetAccountByCurrencyForUpdate(ctx context.Context, arg GetAccountByCurrencyForUpdateParams) (Account, error) {
+	row := q.db.QueryRowContext(ctx, getAccountByCurrencyForUpdate, arg.Currency, arg.Owner)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.Owner,
+		&i.Balance,
+		&i.Currency,
+		&i.CreatedAt,
+		&i.AccType,
+	)
+	return i, err
+}
+
 const getAccountForUpdate = `-- name: GetAccountForUpdate :one
 SELECT id, owner, balance, currency, created_at, acc_type FROM accounts
 WHERE id = $1 
@@ -137,6 +164,32 @@ type GetExtAccountParams struct {
 
 func (q *Queries) GetExtAccount(ctx context.Context, arg GetExtAccountParams) (Account, error) {
 	row := q.db.QueryRowContext(ctx, getExtAccount, arg.Owner, arg.Currency)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.Owner,
+		&i.Balance,
+		&i.Currency,
+		&i.CreatedAt,
+		&i.AccType,
+	)
+	return i, err
+}
+
+const getExtAccountForUpdate = `-- name: GetExtAccountForUpdate :one
+SELECT id, owner, balance, currency, created_at, acc_type FROM accounts
+WHERE owner = $1 AND currency = $2 AND acc_type = 'external'
+LIMIT 1
+FOR NO KEY UPDATE
+`
+
+type GetExtAccountForUpdateParams struct {
+	Owner    string `json:"owner"`
+	Currency string `json:"currency"`
+}
+
+func (q *Queries) GetExtAccountForUpdate(ctx context.Context, arg GetExtAccountForUpdateParams) (Account, error) {
+	row := q.db.QueryRowContext(ctx, getExtAccountForUpdate, arg.Owner, arg.Currency)
 	var i Account
 	err := row.Scan(
 		&i.ID,

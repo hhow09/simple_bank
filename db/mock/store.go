@@ -80,6 +80,21 @@ func (mr *MockStoreMockRecorder) CreateAccountTx(arg0, arg1 interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAccountTx", reflect.TypeOf((*MockStore)(nil).CreateAccountTx), arg0, arg1)
 }
 
+// CreateDepositTx mocks base method.
+func (m *MockStore) CreateDepositTx(arg0 context.Context, arg1 db.CreateDepositTxParams) (db.Transfer, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateDepositTx", arg0, arg1)
+	ret0, _ := ret[0].(db.Transfer)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateDepositTx indicates an expected call of CreateDepositTx.
+func (mr *MockStoreMockRecorder) CreateDepositTx(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDepositTx", reflect.TypeOf((*MockStore)(nil).CreateDepositTx), arg0, arg1)
+}
+
 // CreateEntry mocks base method.
 func (m *MockStore) CreateEntry(arg0 context.Context, arg1 db.CreateEntryParams) (db.Entry, error) {
 	m.ctrl.T.Helper()
@@ -154,6 +169,21 @@ func (mr *MockStoreMockRecorder) GetAccount(arg0, arg1 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccount", reflect.TypeOf((*MockStore)(nil).GetAccount), arg0, arg1)
 }
 
+// GetAccountByCurrencyForUpdate mocks base method.
+func (m *MockStore) GetAccountByCurrencyForUpdate(arg0 context.Context, arg1 db.GetAccountByCurrencyForUpdateParams) (db.Account, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAccountByCurrencyForUpdate", arg0, arg1)
+	ret0, _ := ret[0].(db.Account)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAccountByCurrencyForUpdate indicates an expected call of GetAccountByCurrencyForUpdate.
+func (mr *MockStoreMockRecorder) GetAccountByCurrencyForUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccountByCurrencyForUpdate", reflect.TypeOf((*MockStore)(nil).GetAccountByCurrencyForUpdate), arg0, arg1)
+}
+
 // GetAccountForUpdate mocks base method.
 func (m *MockStore) GetAccountForUpdate(arg0 context.Context, arg1 int64) (db.Account, error) {
 	m.ctrl.T.Helper()
@@ -197,6 +227,21 @@ func (m *MockStore) GetExtAccount(arg0 context.Context, arg1 db.GetExtAccountPar
 func (mr *MockStoreMockRecorder) GetExtAccount(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExtAccount", reflect.TypeOf((*MockStore)(nil).GetExtAccount), arg0, arg1)
+}
+
+// GetExtAccountForUpdate mocks base method.
+func (m *MockStore) GetExtAccountForUpdate(arg0 context.Context, arg1 db.GetExtAccountForUpdateParams) (db.Account, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetExtAccountForUpdate", arg0, arg1)
+	ret0, _ := ret[0].(db.Account)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetExtAccountForUpdate indicates an expected call of GetExtAccountForUpdate.
+func (mr *MockStoreMockRecorder) GetExtAccountForUpdate(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExtAccountForUpdate", reflect.TypeOf((*MockStore)(nil).GetExtAccountForUpdate), arg0, arg1)
 }
 
 // GetTransfer mocks base method.

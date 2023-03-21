@@ -20,10 +20,23 @@ WHERE id = $1
 LIMIT 1
 FOR NO KEY UPDATE;
 
+-- name: GetAccountByCurrencyForUpdate :one
+SELECT * FROM accounts
+WHERE currency = $1 AND owner = $2
+ AND acc_type = 'bank'
+LIMIT 1
+FOR NO KEY UPDATE;
+
 -- name: GetExtAccount :one
 SELECT * FROM accounts
 WHERE owner = $1 AND currency = $2 AND acc_type = 'external'
 LIMIT 1;
+
+-- name: GetExtAccountForUpdate :one
+SELECT * FROM accounts
+WHERE owner = $1 AND currency = $2 AND acc_type = 'external'
+LIMIT 1
+FOR NO KEY UPDATE;
 
 -- name: ListAccounts :many
 SELECT * FROM accounts
