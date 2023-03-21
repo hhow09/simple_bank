@@ -26,6 +26,11 @@ func openSQL(config util.Config) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	// ping to fail early
+	err = conn.Ping()
+	if err != nil {
+		return nil, err
+	}
 	return conn, nil
 }
 
