@@ -12,6 +12,7 @@ import (
 type Store interface {
 	Querier
 	TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error)
+	CreateAccountTx(ctx context.Context, arg CreateAccountParams) (Account, error)
 }
 
 // SQLStore provides all funcs to execute queries and transactions
