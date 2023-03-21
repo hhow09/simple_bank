@@ -46,37 +46,10 @@
     go install github.com/golang/mock/mockgen@v1.6.0
     ```
 
-### Setup infrastructure
-
-- Create the bank-network
-
-    ``` bash
-    make network
-    ```
-
-- Start postgres container:
-
-    ```bash
-    make postgres
-    ```
-
-- Create simple_bank database:
-
-    ```bash
-    make createdb
-    ```
-
-- Run db migration up all versions:
-
-    ```bash
-    make migrateup
-    ```
-
-- Run db migration down all versions:
-
-    ```bash
-    make migratedown
-    ```
+### Setup Dev Infrastructure
+```bash
+docker-compose -f docker-compose.infra.yaml up -d
+```
 
 ### How to generate code
 
@@ -98,20 +71,6 @@
     migrate create -ext sql -dir db/migration -seq <migration_name>
     ```
 
-### How to run
-
-- Run server:
-
-    ```bash
-    make server
-    ```
-
-- Run test:
-
-    ```bash
-    make test
-    ```
-
 ### Play Manually with Postman
 1. install [Postman](https://www.postman.com/)
 2. import [postman-cmds.json](./postman-cmds.json)
@@ -120,6 +79,20 @@
     2. login
     3. JWT header: after login, copy the `access_token` in response and update variable the `auth header` with `bearer {access_token}`
 4. check `http://localhost:8080/swagger/index.html` for API doc
+
+
+## Run Production code
+### Run Production server with Local Infra
+```bash
+docker-compose -f docker-compose.infra.yaml up -d
+docker-compose -f docker-compose.server-only.yaml up --force-recreate --build api
+```
+
+### Run All together
+```bash
+docker-compose up --force-recreate --build api
+```
+
 
 
 ## Progress
@@ -131,13 +104,9 @@
 - Generate sql [000001_init_schema.up.sql](./db/migtation/000001_init_schema.up.sql)
 
 ### 3. Setup Postgres with Docker and DB Migration
-```
-make network
-make postgres
-make createdb
-make migrateup
-make dockerexecpostgres
-\c simple_bank \dt
+```bash
+docker-compose -f docker-compose.infra.yaml up -d
+docker exec -it <CONTAINER_ID> psql -d simple_bank -U root
 ```
 - now we should be able to see tables created by migration script
 - we can also connect DB with [TablePlus](https://tableplus.com/)
@@ -421,26 +390,19 @@ type Server struct {
 - update unit test with `setupAuth` 
 
 ### 23. Build a minimal Golang Docker image with a multistage Dockerfile
-- `docker build . -t simple_bank:latest`
-- `docker run --name simple_bank -p 8080:8080 -e GIN_MODE=release simple_bank:latest`
-### 24. Use docker network to connect 2 stand-alone containers
-- Issue: run `make postgres12 && make serverdocker` will get `"error": "dial tcp 127.0.0.1:5432: connect: connection refused"`.
-    - since `postgres12` and `simple_bank` are running in different container.
-    - Solution: 
-        - `docker network create bank-network` (`make network`)
-        - `docker run ... --network bank-network`
-        - replace `localhost` in `DB_SOURCE` with `host.docker.internal`
-        (`DB_SOURCE=postgresql://root:secret@host.docker.internal:5432/simple_bank?sslmode=disable`)
-    - ref: [docker network](https://docs.docker.com/network/)
+test the built simple_bank_api container in dev environment 
+```bash
+docker-compose -f docker-compose.infra.yaml up -d
+docker-compose -f docker-compose.server-only.yaml up --force-recreate --build api
+```
 
-### 25. write docker-compose file and control service start-up orders with wait-for.sh
-- write [docker-compose.yaml](docker-compose.yaml) to start multiple service at once
-    - define environment variables
-    - add db migration into [start.sh](./start.sh)
-    - `docker compose up --force-recreate --build api`
-- api should wait for postgres to start up
-    - use [depends_on](https://docs.docker.com/compose/compose-file/compose-file-v3/#depends_on)
-    - use [wait-for.sh](https://github.com/eficode/wait-for)
+### 24. Use docker network to connect 2 stand-alone containers
+- solved in `docker-compose.server-only.yaml`
+
+### 25. write [docker-compose.yaml](docker-compose.yaml)
+1. start db
+2. run migration
+3. start service
 
 ### 26. Generate API Doc with [swaggo/swag](https://github.com/swaggo/swag)
 - `make swagger` then swagger files will be in [docs](./docs)

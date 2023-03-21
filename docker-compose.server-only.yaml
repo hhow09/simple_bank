@@ -1,0 +1,18 @@
+# build server docker and run with dev infra "docker-compose.dev.yaml"
+version: "3.9"
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports: 
+      - "8080:8080"
+    environment: 
+      - DB_SOURCE=postgresql://root:secret@postgres:5432/simple_bank?sslmode=disable
+      - GIN_MODE=release
+    command: ["/app/main"]
+    networks:
+      - bank-network
+networks:
+  bank-network:
+    external: true

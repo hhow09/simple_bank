@@ -1,13 +1,16 @@
 version: "3.9"
 services:
   postgres: 
+    container_name: postgres
     image: postgres:12-alpine
     environment: 
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=secret
       - POSTGRES_DB=simple_bank
     networks:
-      - bank-network      
+      - bank-network
+    ports:
+      - "5432:5432"
   migrate:
     image: migrate/migrate
     volumes:
@@ -18,20 +21,6 @@ services:
     networks:
       - bank-network
     restart: on-failure
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports: 
-      - "8080:8080"
-    environment: 
-      - DB_SOURCE=postgresql://root:secret@postgres:5432/simple_bank?sslmode=disable
-    depends_on:
-      - postgres
-      - migrate
-    command: ["/app/main"]
-    networks:
-      - bank-network
 networks:
   bank-network:
     name: bank-network
