@@ -52,9 +52,10 @@ func (c *AccountController) CreateAccount(ctx *gin.Context) {
 		Owner:    authPayload.Username,
 		Currency: req.Currency,
 		Balance:  0,
+		AccType:  db.AccountTypeBank,
 	}
 
-	account, err := c.store.CreateAccount(ctx, arg)
+	account, err := c.store.CreateAccountTx(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
