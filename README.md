@@ -1,55 +1,58 @@
 # Simple Bank
+a simple bank service built with Golang (`gin`), `PostgreSQL`, [sqlc](https://github.com/sqlc-dev/sqlc).
+
 ## Introduction
-- This is a simple bank service built with Golang (gin), PostgreSQL, sqlc, PASETO.
-- Easy to maintain, preferment also type-safe code for query generated from sqlc.
+- Easy to maintain, preferment also type-safe code for query generated from [sqlc](https://github.com/sqlc-dev/sqlc).
 - Structured and dependency injection with [uber-go/fx](https://github.com/uber-go/fx)
 - Test-driven development style with high test coverage using `golang/mock`
-- Token-based authentication using PASETO and auth middleware.
-- Containerized service, easy to run with `docker-compose`
-- Separated config into env var.
-- RESTful API with auto generated api doc
+- Token-based authentication using [PASETO](https://github.com/paragonie/paseto).
+- Containerized service, easy to run with [docker-compose](https://docs.docker.com/compose/)
+- use env var file for config with [Viper](https://github.com/spf13/viper)
+- RESTful API with auto generated api doc with [swaggo/swag](https://github.com/swaggo/swag)
 
 ## Functions
 - User can create a `User` based on unique `username` and `email`.
 - A log-in `User` can create multiple accounts with different currencies.
 - Record all account balance changes in `Entry` table. Whenever some money is added to or subtracted from the account, an account entry record will be created.
 - `/transfer` api, provide a money transfer function between 2 accounts. This happen **within a transaction** and transfer is thread-safe operation.
-## How to Run the Service
-- `docker compose up`
 
+## Start the service
+### Build and run the service
+```bash
+docker-compose up --force-recreate --build api
+```
+
+### Play Manually with Postman
+1. check [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html) for API doc
+2. install [Postman](https://www.postman.com/)
+3. import [postman-cmds.json](./postman-cmds.json)
+4. have fun
+    1. create user
+    2. login
+    3. JWT header: after login, copy the `access_token` in response and update variable the `auth header` with `bearer {access_token}`
 
 ## Database Schema
 ![](./db/dbdiagram.png)
+
+
 ## Setup local development
 
-### Install tools
+### Run Local Infra with dev server
+```bash
+docker-compose -f docker-compose.infra.yaml up -d
+go run main.go
+```
 
+### Install tools
 - [Docker desktop](https://www.docker.com/products/docker-desktop)
 - [TablePlus](https://tableplus.com/)
 - [Golang](https://golang.org/)
-- [Homebrew](https://brew.sh/)
 - [Migrate](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate)
-
-    ```bash
-    brew install golang-migrate
-    ```
-
+    - if you want to create migration e.g. [step 15](#15-add-users-table-with-unique--foreign-key-constraints-in-postgresql)
 - [Sqlc](https://github.com/kyleconroy/sqlc#installation)
-
-    ```bash
-    brew install sqlc
-    ```
-
+    - if you want to generate go code from sql
 - [Gomock](https://github.com/golang/mock)
-
-    ``` bash
-    go install github.com/golang/mock/mockgen@v1.6.0
-    ```
-
-### Setup Dev Infrastructure
-```bash
-docker-compose -f docker-compose.infra.yaml up -d
-```
+    - if you want to generate mock code
 
 ### How to generate code
 
@@ -71,31 +74,9 @@ docker-compose -f docker-compose.infra.yaml up -d
     migrate create -ext sql -dir db/migration -seq <migration_name>
     ```
 
-### Play Manually with Postman
-1. install [Postman](https://www.postman.com/)
-2. import [postman-cmds.json](./postman-cmds.json)
-3. have fun
-    1. create user
-    2. login
-    3. JWT header: after login, copy the `access_token` in response and update variable the `auth header` with `bearer {access_token}`
-4. check `http://localhost:8080/swagger/index.html` for API doc
+---
 
-
-## Run Production code
-### Run Production server with Local Infra
-```bash
-docker-compose -f docker-compose.infra.yaml up -d
-docker-compose -f docker-compose.server-only.yaml up --force-recreate --build api
-```
-
-### Run All together
-```bash
-docker-compose up --force-recreate --build api
-```
-
-
-
-## Progress
+## Dev Progress
 ### 1. Setup local environment
 
 ### 2. Design [dbdiagram](./db/dbdiagram) with https://dbdiagram.io/
