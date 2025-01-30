@@ -1,4 +1,6 @@
 # Simple Bank
+![coverage](https://raw.githubusercontent.com/hhow09/simple_bank/refs/heads/badges/.badges/master/coverage.svg)
+
 a simple bank service built with Golang (`gin`), `PostgreSQL`, [sqlc](https://github.com/sqlc-dev/sqlc).
 
 ## Introduction
