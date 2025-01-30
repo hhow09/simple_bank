@@ -34,6 +34,9 @@ sqlc:
 test:
 	go test -v -cover ./...
 
+test-with-coverage:
+	go test ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...
+
 server:
 	go run main.go
 

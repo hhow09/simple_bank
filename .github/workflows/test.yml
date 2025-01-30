@@ -9,6 +9,8 @@ on:
     branches: [ master ]
     paths-ignore:
       - 'README.md'
+permissions:
+  contents: write
 jobs:
 
   test:
@@ -24,10 +26,19 @@ jobs:
         go-version-file: go.mod
       id: go
     - name: Set up DB + Migrations
-      uses: isbang/compose-action@v1.4.1
+      uses: hoverkraft-tech/compose-action@v2.1.0
       with:
         compose-file: "./docker-compose.infra.yaml"
         down-flags: "--volumes"
 
     - name: go test
-      run: make test
+      run: make test-with-coverage
+    - name: check test coverage
+      uses: vladopajic/go-test-coverage@v2
+      with:
+        profile: cover.out
+        git-token: ${{ github.ref_name == 'master' && secrets.GITHUB_TOKEN || '' }}
+        # https://github.com/vladopajic/go-test-coverage/blob/main/docs/badge.md#hosting-the-coverage-badge-in-the-same-github-repository
+        ## name of branch where badges are stored
+        ## ideally this should be orphan branch (see below how to create this branch)
+        git-branch: badges       
