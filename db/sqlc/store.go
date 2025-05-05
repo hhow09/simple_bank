@@ -12,6 +12,8 @@ import (
 type Store interface {
 	Querier
 	TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error)
+	CreateAccountTx(ctx context.Context, arg CreateAccountParams) (Account, error)
+	CreateDepositTx(ctx context.Context, param CreateDepositTxParams) (Transfer, error)
 }
 
 // SQLStore provides all funcs to execute queries and transactions
@@ -82,39 +84,46 @@ func (store *SQLStore) TransferTx(ctx context.Context, arg TransferTxParams) (Tr
 
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
-		result.Transfer, err = q.CreateTransfer(ctx, CreateTransferParams{
-			FromAccountID: arg.FromAccountID,
-			ToAccountID:   arg.ToAccountID,
-			Amount:        arg.Amount,
-		})
-		if err != nil {
-			return err
-		}
-		result.FromEntry, err = q.CreateEntry(ctx, CreateEntryParams{
-			AccountID: arg.FromAccountID,
-			Amount:    -arg.Amount,
-		})
-		if err != nil {
-			return err
-		}
-
-		result.ToEntry, err = q.CreateEntry(ctx, CreateEntryParams{
-			AccountID: arg.ToAccountID,
-			Amount:    arg.Amount,
-		})
-		if err != nil {
-			return err
-		}
-
-		// update accounts' balance
-		if arg.FromAccountID < arg.ToAccountID {
-			result.FromAccount, result.ToAccount, err = addMoney(ctx, q, arg.FromAccountID, -arg.Amount, arg.ToAccountID, arg.Amount)
-		} else {
-			result.ToAccount, result.FromAccount, err = addMoney(ctx, q, arg.ToAccountID, arg.Amount, arg.FromAccountID, -arg.Amount)
-		}
+		result, err = TransferWithTx(q, ctx, arg)
 		return err
 	})
 
+	return result, err
+}
+
+func TransferWithTx(q *Queries, ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
+	var err error
+	var result TransferTxResult
+	result.Transfer, err = q.CreateTransfer(ctx, CreateTransferParams{
+		FromAccountID: arg.FromAccountID,
+		ToAccountID:   arg.ToAccountID,
+		Amount:        arg.Amount,
+	})
+	if err != nil {
+		return result, err
+	}
+	result.FromEntry, err = q.CreateEntry(ctx, CreateEntryParams{
+		AccountID: arg.FromAccountID,
+		Amount:    -arg.Amount,
+	})
+	if err != nil {
+		return result, err
+	}
+
+	result.ToEntry, err = q.CreateEntry(ctx, CreateEntryParams{
+		AccountID: arg.ToAccountID,
+		Amount:    arg.Amount,
+	})
+	if err != nil {
+		return result, err
+	}
+
+	// update accounts' balance
+	if arg.FromAccountID < arg.ToAccountID {
+		result.FromAccount, result.ToAccount, err = addMoney(ctx, q, arg.FromAccountID, -arg.Amount, arg.ToAccountID, arg.Amount)
+	} else {
+		result.ToAccount, result.FromAccount, err = addMoney(ctx, q, arg.ToAccountID, arg.Amount, arg.FromAccountID, -arg.Amount)
+	}
 	return result, err
 }
 

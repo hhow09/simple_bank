@@ -15,6 +15,7 @@ func createRandomAccount(t *testing.T) Account {
 		Owner:    user.Username,
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
+		AccType:  AccountTypeBank,
 	}
 
 	account, err := testQueries.CreateAccount(context.Background(), args)

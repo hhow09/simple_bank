@@ -173,8 +173,9 @@ func TestCreateAccountAPI(t *testing.T) {
 					Owner:    account.Owner,
 					Currency: account.Currency,
 					Balance:  0,
+					AccType:  db.AccountTypeBank,
 				}
-				store.EXPECT().CreateAccount(gomock.Any(), arg).Times(1).Return(account, nil)
+				store.EXPECT().CreateAccountTx(gomock.Any(), arg).Times(1).Return(account, nil)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
@@ -191,7 +192,7 @@ func TestCreateAccountAPI(t *testing.T) {
 				addAuth(t, request, tokenMaker, constants.AuthTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
-				store.EXPECT().CreateAccount(gomock.Any(), gomock.Any()).Times(1).Return(db.Account{}, sql.ErrConnDone)
+				store.EXPECT().CreateAccountTx(gomock.Any(), gomock.Any()).Times(1).Return(db.Account{}, sql.ErrConnDone)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
@@ -207,7 +208,7 @@ func TestCreateAccountAPI(t *testing.T) {
 				addAuth(t, request, tokenMaker, constants.AuthTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
-				store.EXPECT().CreateAccount(gomock.Any(), gomock.Any()).Times(0)
+				store.EXPECT().CreateAccountTx(gomock.Any(), gomock.Any()).Times(0)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
