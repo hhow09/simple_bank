@@ -19,18 +19,21 @@ jobs:
 
     steps:
     - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
+      uses: actions/checkout@v6
     - name: Set up Go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v6
       with:
         go-version-file: go.mod
       id: go
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@v9
+      with:
+        version: v2.11      
     - name: Set up DB + Migrations
-      uses: hoverkraft-tech/compose-action@v2.1.0
+      uses: hoverkraft-tech/compose-action@4894d2492015c1774ee5a13a95b1072093087ec3
       with:
         compose-file: "./docker-compose.infra.yaml"
         down-flags: "--volumes"
-
     - name: go test
       run: make test-with-coverage
     - name: check test coverage
