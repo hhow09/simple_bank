@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -43,7 +43,7 @@ func TestGetAccountAPI(t *testing.T) {
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
-				requireBodyMatchAcoount(t, recorder.Body, account)
+				requireBodyMatchAccount(t, recorder.Body, account)
 			},
 		},
 		{
@@ -137,16 +137,6 @@ func TestGetAccountAPI(t *testing.T) {
 
 }
 
-// response body should match input
-func requireBodyMatchAcoount(t *testing.T, body *bytes.Buffer, account db.Account) {
-	data, err := ioutil.ReadAll(body)
-	require.NoError(t, err)
-
-	var gotAccount db.Account
-	err = json.Unmarshal(data, &gotAccount)
-	require.NoError(t, err)
-	require.Equal(t, account, gotAccount)
-}
 
 func TestCreateAccountAPI(t *testing.T) {
 	user, _ := randomUser(t)
@@ -178,7 +168,7 @@ func TestCreateAccountAPI(t *testing.T) {
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
-				requireBodyMatchAcoount(t, recorder.Body, account)
+				requireBodyMatchAccount(t, recorder.Body, account)
 			},
 		},
 		{
@@ -387,7 +377,7 @@ func randomAccount(owner string) db.Account {
 }
 
 func requireBodyMatchAccount(t *testing.T, body *bytes.Buffer, account db.Account) {
-	data, err := ioutil.ReadAll(body)
+	data, err := io.ReadAll(body)
 	require.NoError(t, err)
 
 	var gotAccount db.Account
@@ -397,7 +387,7 @@ func requireBodyMatchAccount(t *testing.T, body *bytes.Buffer, account db.Accoun
 }
 
 func requireBodyMatchAccounts(t *testing.T, body *bytes.Buffer, accounts []db.Account) {
-	data, err := ioutil.ReadAll(body)
+	data, err := io.ReadAll(body)
 	require.NoError(t, err)
 
 	var gotAccounts []db.Account

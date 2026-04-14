@@ -47,7 +47,10 @@ func NewServer(config util.Config, store db.Store, tokenMaker token.Maker, reque
 	//binding custom validator
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		//registor validator to gin
-		v.RegisterValidation("currency", validCurrency)
+		err := v.RegisterValidation("currency", validCurrency)
+		if err != nil {
+			return nil, err
+		}
 	}
 	// server.setupRouter()
 	return server, nil
@@ -65,12 +68,11 @@ func (server *Server) Start(address string) error {
 func registerHooks(lc fx.Lifecycle, server *Server) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			go func() error {
+			go func() {
 				err := server.Start(server.config.ServerAddress)
 				if err != nil {
 					log.Fatal("error starting server: ", err)
 				}
-				return nil
 			}()
 			return nil
 		},
